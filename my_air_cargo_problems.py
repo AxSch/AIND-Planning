@@ -61,6 +61,30 @@ class AirCargoProblem(Problem):
             """
             loads = []
             # TODO create all load ground actions from the domain Load action
+            for airport in self.airports:  # for all given airports
+                for cargo in self.cargos:  # and for all given cargos
+                    for plane in self.planes:  # and finally for all given planes
+                        if cargo not in loads:  # given cargo cannot be already be on board the given plane
+                            precond_pos = [expr("At({}, {})".format(cargo, airport)), ]
+                            # list contains necessary positive literal(s) within the precondition
+                            # precondition must be true when checked against kb in order for action to take place
+                            # expression is executed as At(cargo, airport), reading: is given cargo at given airport true?
+                            precond_neg = []  # list for negative literal(s) within the precondition
+                            effect_add = [expr("In({}, {})".format(cargo, plane))]
+                            # list contains positive fluents added to the kb from executing the action with the given preconditions being true
+                            # expression is executed as In(cargo, plane), reading: is given cargo in given plane true?
+                            effect_rem = [expr("At({}, {})".format(cargo, airport))]
+                            # list contains negative fluents(fluents which no longer hold as true) caused by the action taking place
+                            # shows mutex between In(), At() and Load() - cargo cannot be At the  airport and In the plane at the same time,
+                            # Load has to take place in order for given cargo to be true of In the plane,
+                            # resulting in false of At given cargo being at given airport
+                            load = Action(expr("Load({}, {}, {})".format(cargo, plane, airport)),[precond_pos, precond_neg],[effect_add, effect_rem])
+                            # Action to load the given cargo from the given airport into the given plane
+                            # handles the preconditions positive and negative literals to make sure the precondition is met before executing further
+                            # Effects - positive and negative entail the precondition if true and are handled by the function Action
+
+                            loads.append(load)  # append the resulting belief state of the Action to the list loads
+
             return loads
 
         def unload_actions():
