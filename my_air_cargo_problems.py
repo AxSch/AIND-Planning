@@ -213,14 +213,14 @@ def air_cargo_p1() -> AirCargoProblem:
 
 def air_cargo_p2() -> AirCargoProblem:
     # TODO implement Problem 2 definition
-    cargos = ['C1','C2','C3']  # lists containing variables necessary to the domain
+    cargos = ['C1', 'C2', 'C3']  # lists containing variables necessary to the domain
     planes = ['P1', 'P2', 'P3']
     airports = ['JFK', 'SFO', 'ATL']
     pos = [
         expr('At(C1, SFO)'),  # Expresses the initial state's positive fluents
         expr('At(C2, JFK)'),  # Belief states that need to be true in order for a goal to be achieved
         expr('At(C3, ATL)'),
-        expr('At(P1, CFO)'),
+        expr('At(P1, SFO)'),
         expr('At(P2, JFK)'),
         expr('At(P3, ATL)'),
     ]
@@ -272,7 +272,7 @@ def air_cargo_p2() -> AirCargoProblem:
 
 def air_cargo_p3() -> AirCargoProblem:
     # TODO implement Problem 3 definition
-    cargos = ['C1','C2','C3','C4']
+    cargos = ['C1', 'C2', 'C3', 'C4']  # lists containing variables necessary to the domain
     planes = ['P1', 'P2']
     airports = ['JFK', 'SFO', 'ATL', 'ORD']
 
