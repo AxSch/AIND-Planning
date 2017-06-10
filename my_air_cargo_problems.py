@@ -231,18 +231,21 @@ def air_cargo_p2() -> AirCargoProblem:
         expr('In(C1, P1)'),
         expr('In(C1, P2)'),
         expr('In(C1, P3)'),
+        # all negative fluents regarding C1 from its initial state to goal state
 
         expr('At(C2, SFO)'),
         expr('At(C2, JFK)'),
         expr('In(C2, P1)'),
         expr('In(C2, P2)'),
         expr('In(C2, P3)'),
+        # all negative fluents regarding C2 from its initial state to goal state
 
         expr('At(C3, ATL)'),
         expr('At(C3, SFO)'),
         expr('In(C3, P1)'),
         expr('In(C3, P2)'),
         expr('In(C3, P3)'),
+        # all negative fluents regarding C3 from its initial state to goal state
 
         expr('At(P1, JFK)'),
         expr('At(P1, ATL)'),
@@ -250,19 +253,90 @@ def air_cargo_p2() -> AirCargoProblem:
         expr('At(P2, ATL)'),
         expr('At(P3, JFK)'),
         expr('At(P3, SFO)'),
+        # all negative fluents regarding P1/P2/P3 from its initial state to goal state
     ]
     # Expresses the necessary negative fluents required to achieve a satisfiable goal
 
-    init = FluentState(pos,neg)  # pass the lists containing positive and negative fluents
+    init = FluentState(pos,neg)
+    # pass the lists containing positive and negative fluents
+    # in order to setup the initial state of the domain
+
     goal = [
         expr('At(C1, JFK)'),
         expr('At(C2, SFO)'),
         expr('At(C3, SFO)'),
     ]
-    # explicitly defines the conditions for the goal state to be satisfied
+    # explicitly defines the conditions for cargo and airport for the goal state to be satisfied
 
     return AirCargoProblem(cargos, planes, airports,init, goal)
 
 def air_cargo_p3() -> AirCargoProblem:
     # TODO implement Problem 3 definition
-    pass
+    cargos = ['C1','C2','C3','C4']
+    planes = ['P1', 'P2']
+    airports = ['JFK', 'SFO', 'ATL', 'ORD']
+
+    pos = [
+        expr('At(C1, SFO)'),
+        expr('At(C2, JFK)'),
+        expr('At(C3, ATL)'),
+        expr('At(C4, ORD)'),
+        expr('At(P1, SFO)'),
+        expr('At(P2, JFK)'),
+        # expresses initial state's positive fluents
+        # these must to true in order for a goal state to be achieved
+    ]
+
+    neg = [
+        expr('At(C1, SFO)'),
+        expr('At(C1, JFK)'),
+        expr('At(C1, ATL)'),
+        expr('In(C1, P1)'),
+        expr('In(C1, P2)'),
+        # all negative fluents regarding C1 from its initial state to goal state
+
+        expr('At(C2, JFK)'),
+        expr('At(C2, SFO)'),
+        expr('At(C2, ORD)'),
+        expr('In(C2, P1)'),
+        expr('In(C2, P2)'),
+        # all negative fluents regarding C2 from its initial state to goal state
+
+        expr('At(C3, ATL)'),
+        expr('At(C3, JFK)'),
+        expr('At(C3, SFO)'),
+        expr('In(C3, P1)'),
+        expr('In(C3, P2)'),
+        # all negative fluents regarding C3 from its initial state to goal state
+
+        expr('At(C4, ORD)'),
+        expr('At(C4, SFO)'),
+        expr('At(C4, JFK)'),
+        expr('In(C4, P1)'),
+        expr('In(C4, P2)'),
+        # all negative fluents regarding C4 from its initial state to goal state
+
+        expr('At(P1, ATL)'),
+        expr('At(P1, JFK)'),
+        expr('At(P1, ORD)'),
+        # all negative fluents regarding P1 from its initial state to goal state
+
+        expr('At(P2, ATL)'),
+        expr('At(P2, SFO)'),
+        expr('At(P2, ORD)'),
+        # all negative fluents regarding P2 from its initial state to goal state
+    ]
+
+    init = FluentState(pos,neg)
+    # pass the lists containing positive and negative fluents
+    # in order to setup the initial state of the domain
+
+    goal = [
+        expr('At(C1, JFK)'),
+        expr('At(C3, JFK)'),
+        expr('At(C2, SFO)'),
+        expr('At(C4, SFO)'),
+        # explicitly defines the conditions for cargo and airport for the goal state to be satisfied
+    ]
+
+    return AirCargoProblem(cargos, planes, airports,init, goal)
