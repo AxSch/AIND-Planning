@@ -78,9 +78,9 @@ class AirCargoProblem(Problem):
                             # shows mutex between In(), At() and Load() - cargo cannot be At the  airport and In the plane at the same time,
                             # Load has to take place in order for given cargo to be true of In the plane,
                             # resulting in false of At given cargo being at given airport
-                            load = Action(expr("Load({}, {}, {})".format(cargo, plane, airport)),[precond_pos, precond_neg],[effect_add, effect_rem])
+                            load = Action(expr("Load({}, {}, {})".format(cargo, plane, airport)), [precond_pos, precond_neg], [effect_add, effect_rem])
                             # Action to load the given cargo from the given airport into the given plane
-                            # handles the preconditions positive and negative literals to make sure the precondition is met before executing further
+                            # handles the preconditions positive and negative literals & fluents to make sure the precondition is met before executing further
                             # Effects - positive and negative entail the precondition if true and are handled by the function Action
 
                             loads.append(load)  # append the resulting belief state of the Action to the list loads
@@ -128,7 +128,23 @@ class AirCargoProblem(Problem):
         :return: list of Action objects
         """
         # TODO implement
-        possible_actions = []
+        possible_actions = []  # list containing the possible actions available in a given state
+
+        for action in self.actions_list:  # for any given action in the action list
+            # a is a member of Actions(s)
+            kb = PropKB()  # assigning the propositional knowledge base
+            kb.tell(decode_state(state, self.state_map).pos_sentence())
+            # This makes sure the action entails the precondition in the given state
+            # KB is TELLED a logical statement which is then queried to determine
+            # result is converted into a logical sentence that satisfies the KB's input
+            if action.check_precond(kb,action.args):
+                # for given clauses that are a positive fluent of the given action
+                # given every negative literal is not  precond(a) and  is not in the given state
+                # s |= precond(a)
+                # if state does entail the precond(a)
+                possible_actions.append(action)
+                # append the given possible action to the list of possible actions to the given state
+
         return possible_actions
 
     def result(self, state: str, action: Action):
@@ -141,8 +157,6 @@ class AirCargoProblem(Problem):
         :return: resulting state after action
         """
         # TODO implement
-        new_state = FluentState([], [])
-        return encode_state(new_state, self.state_map)
 
     def goal_test(self, state: str) -> bool:
         """ Test the state to see if goal is reached
