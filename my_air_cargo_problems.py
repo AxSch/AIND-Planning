@@ -157,6 +157,30 @@ class AirCargoProblem(Problem):
         :return: resulting state after action
         """
         # TODO implement
+        new_state = FluentState([], [])
+        prev_state = decode_state(state,self.state_map)  # get the previous state's positive and negative lists
+
+        for fluent in prev_state.pos:  # for given fluent in the previous state's known positive literals
+            if fluent not in action.effect_rem:  # checks if the fluent is not in action DEL(a) - delete list
+                new_state.pos.append(fluent)
+
+        for fluent in action.effect_add:  # for given fluent in ADD(a) -  action's add list
+            if fluent not in new_state.pos:
+                # check to see if fluent not part of the new state's positive literals
+                # if it isn't, append to satisfy the precondition requirement of action schemas
+                new_state.pos.append(fluent)
+
+        for fluent in prev_state.neg:  # for given fluent in the previous state's known negative literals
+            if fluent not in action.effect_add:  # checks if the fluent is not in ADD(a) - action's add list
+                new_state.neg.append(fluent)
+
+        for fluent in action.effect_rem:  # for given fluent in DEL(a) - action's delete list
+            if fluent not in new_state.neg:
+                # check to see if fluent not part of the new state's negative literals
+                # if it isn't, append to satisfy the effects requirement of action schemas
+                new_state.neg.append(fluent)
+
+        return encode_state(new_state,self.state_map)  # converts results in to ground atoms,a True or False
 
     def goal_test(self, state: str) -> bool:
         """ Test the state to see if goal is reached
