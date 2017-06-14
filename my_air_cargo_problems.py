@@ -57,24 +57,28 @@ class AirCargoProblem(Problem):
         def load_actions():
             """Create all concrete Load actions and return a list
 
+            Action(Load(c, p, a),
+            PRECOND: At(c, a) ∧ At(p, a) ∧ Cargo(c) ∧ Plane(p) ∧ Airport(a)
+            EFFECT: ¬ At(c, a) ∧ In(c, p))
+
             :return: list of Action objects
             """
             loads = []
             # TODO create all load ground actions from the domain Load action
-            for airport in self.airports:  # for all given airports
-                for cargo in self.cargos:  # and for all given cargos
-                    for plane in self.planes:  # and finally for all given planes
+            for cargo in self.cargos:  # for all given cargos
+                for plane in self.planes:  # and for all given planes
+                    for airport in self.airports:  # and finally for all given planes
                         if cargo not in loads:  # given cargo cannot be already be on board the given plane
-                            precond_pos = [expr("At({}, {})".format(cargo, airport)), ]
+                            precond_pos = [expr("At({}, {})".format(cargo, airport)), expr('At({}, {})'.format(plane, airport)), ]
                             # list contains necessary positive literal(s) within the precondition
                             # precondition must be true when checked against kb in order for action to take place
                             # expression is executed as At(cargo, airport), reading: is given cargo at given airport true?
                             precond_neg = []  # list for negative literal(s) within the precondition
                             effect_add = [expr("In({}, {})".format(cargo, plane))]
-                            # list contains positive fluents added to the kb from executing the action with the given preconditions being true
+                            # add list contains positive fluents added to the kb from executing the action with the given preconditions being true
                             # expression is executed as In(cargo, plane), reading: is given cargo in given plane true?
                             effect_rem = [expr("At({}, {})".format(cargo, airport))]
-                            # list contains negative fluents(fluents which no longer hold as true) caused by the action taking place
+                            # delete list contains negative fluents(fluents which no longer hold as true) caused by the action taking place
                             # shows mutex between In(), At() and Load() - cargo cannot be At the  airport and In the plane at the same time,
                             # Load has to take place in order for given cargo to be true of In the plane,
                             # resulting in false of At given cargo being at given airport
@@ -90,10 +94,38 @@ class AirCargoProblem(Problem):
         def unload_actions():
             """Create all concrete Unload actions and return a list
 
+                Action(Unload(c, p, a),
+                PRECOND: In(c, p) ∧ At(p, a) ∧ Cargo(c) ∧ Plane(p) ∧ Airport(a)
+                EFFECT: At(c, a) ∧ ¬ In(c, p))
+
             :return: list of Action objects
             """
             unloads = []
             # TODO create all Unload ground actions from the domain Unload action
+            for cargo in self.cargos:  # for all given cargos
+                for plane in self.planes:  # for all given planes
+                    for airport in self.airports:  # for all given airports
+                        if cargo not in unloads:  # cargo can not already be in unloads, already unloaded from the plane
+                            precond_pos = [expr('In({},{})'.format(cargo, plane)), expr('At({}, {})'.format(plane, airport)), ]
+                            # list contains necessary positive literal(s) within the precondition
+                            # precondition must be true when checked against kb in order for action to take place
+                            # expression is executed as In(cargo, plane), reading: is given cargo in given plane true?
+                            precond_neg = []  # list for negative literal(s) within the precondition
+                            effect_add = [expr("At({}, {})".format(cargo, airport))]
+                            # add list contains positive fluents added to the kb from executing the action with the given preconditions being true
+                            # expression is executed as At(cargo, airport), reading: is given cargo at given airport true?
+                            effect_rem = [expr("In({}, {})".format(cargo, plane))]
+                            # delete list contains negative fluents(fluents which no longer hold as true) caused by the action taking place
+                            # shows mutex between In(), At() and Load() - cargo cannot be At the  airport and In the plane at the same time,
+                            # Load has to take place in order for given cargo to be true of In the plane,
+                            # resulting in false of At given cargo being at given airport
+                            load = Action(expr("Unload({}, {}, {})".format(cargo, plane, airport)), [precond_pos, precond_neg], [effect_add, effect_rem])
+                            # Action to load the given cargo from the given airport into the given plane
+                            # handles the preconditions positive and negative literals & fluents to make sure the precondition is met before executing further
+                            # Effects - positive and negative entail the precondition if true and are handled by the function Action
+
+                            unloads.append(load)  # append the resulting belief state of the Action to the list loads
+
             return unloads
 
         def fly_actions():
@@ -137,7 +169,7 @@ class AirCargoProblem(Problem):
             # This makes sure the action entails the precondition in the given state
             # KB is TELLED a logical statement which is then queried to determine
             # result is converted into a logical sentence that satisfies the KB's input
-            if action.check_precond(kb,action.args):
+            if action.check_precond(kb, action.args):
                 # for given clauses that are a positive fluent of the given action
                 # given every negative literal is not  precond(a) and  is not in the given state
                 # s |= precond(a)
