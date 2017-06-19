@@ -417,6 +417,10 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Effects between nodes
+        for effect in node_a1.action.effect_add:  # iterates through the action's effect add list
+            if effect in node_a2.action.effect_rem: # checks to see if effect still holds true after node a2 action
+                return True
+
         return False
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
