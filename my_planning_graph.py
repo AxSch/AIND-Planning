@@ -311,6 +311,24 @@ class PlanningGraph():
         #   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
         #   action node is added, it MUST be connected to the S node instances in the appropriate s_level set.
 
+        action_level_set = set()  # empty set to store action levels, no duplicate values
+        prev_state_level = self.s_levels[level]  # retrieve previous state level
+        for action in self.all_actions:  # iterate over all possible actions in action list - including persistence actions
+            act_node = PgNode_a(action)  # initialize action as a ground action level node
+            if act_node.prenodes.issubset(prev_state_level):
+                # check to see if ground action satisfies preconditions
+                # but is also a subset of the previous state level
+                action_level_set.add(act_node)
+                # if it holds as true then add to the actions level set
+                for state_node in prev_state_level:  # iterating over the given state nodes in the current state
+                    # relationships between parent nodes: State levels
+                    # and child nodes: Action levels
+                    state_node.children.add(act_node)
+                    act_node.parents.add(state_node)
+
+        return self.a_levels.append(action_level_set)
+        # append the set of successful action levels to the current list of action levels
+
     def add_literal_level(self, level):
         """ add an S (literal) level to the Planning Graph
 
@@ -328,6 +346,19 @@ class PlanningGraph():
         #   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
         #   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
         #   parent sets of the S nodes
+
+        prev_act_level = self.a_levels[level - 1]  # previous action level that's applicable to the given state
+        state_level_set = set()  # empty set to store state levels, no duplicate values
+        for act_node in prev_act_level:  # iterate over every action node in the previous action level
+            for state_node in act_node.effnodes:  # iterates over each node that is an effect of that action
+                state_node.parents.add(act_node)
+                act_node.children.add(state_node)
+                # relationships between parent nodes: State levels
+                # and child nodes: Action levels
+                state_level_set.add(state_node)
+                
+        return self.s_levels.append(state_level_set)
+        # append the set of successful action levels to the current list of action levels
 
     def update_a_mutex(self, nodeset):
         """ Determine and update sibling mutual exclusion for A-level nodes
