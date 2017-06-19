@@ -418,7 +418,7 @@ class PlanningGraph():
         """
         # TODO test for Inconsistent Effects between nodes
         for effect in node_a1.action.effect_add:  # iterates through the action's effect add list
-            if effect in node_a2.action.effect_rem: # checks to see if effect still holds true after node a2 action
+            if effect in node_a2.action.effect_rem:  # checks to see if effect still holds true after node a2 action
                 return True
 
         return False
@@ -438,6 +438,12 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Interference between nodes
+
+        for effect in node_a1.action.effect_rem or node_a2.action.effect_rem:  # iterates through the action's effect delete list
+            if effect in node_a2.action.precond_pos or node_a1.action.precond_pos:
+                # checks to see if effect is in the other action's positive precondition literal list
+                # if so return true as effect of action is a negation of the precondition of the other action
+                return True
         return False
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
