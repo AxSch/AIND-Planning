@@ -499,7 +499,7 @@ class PlanningGraph():
         """
         # TODO test for negation between nodes
 
-        if node_s1.symbol and node_s2.symbol:  # check to see if both literals have symbols
+        if node_s1.symbol and node_s2.symbol:  # check to see if pair of state literals have symbols
             if node_s1.is_pos != node_s2.is_pos:
                 # check to see if the one is positive and the other is not - can't be equal
                 return True
@@ -522,7 +522,14 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Support between nodes
-        return False
+        for node in node_s1.parents:  # iterates through pair of the state literals in prev action level
+            for node2 in node_s2.parents:
+                if not node.is_mutex(node2):
+                    # check to see if node is not mutually exclusive with node2
+                    # if given pair of actions in both of the previous levels can achieve the same literals at the same time
+                    return False
+        # if no given pair of actions in both the previous levels can achieve the two literals at the same time
+        return True
 
     def h_levelsum(self) -> int:
         """The sum of the level costs of the individual goals (admissible if goals independent)
