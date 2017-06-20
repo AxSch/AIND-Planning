@@ -458,6 +458,11 @@ class PlanningGraph():
         """
 
         # TODO test for Competing Needs between nodes
+        for precond in node_a1.parents:  # iterates through each of the nodes action's preconditions
+            for precond2 in node_a2.parents:
+                if precond.is_mutex(precond2):
+                    # applies a check using function is_mutex to test mutual exclusion
+                    return True
         return False
 
     def update_s_mutex(self, nodeset: set):
