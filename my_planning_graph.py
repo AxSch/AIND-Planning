@@ -537,6 +537,18 @@ class PlanningGraph():
         :return: int
         """
         level_sum = 0
+        goals = self.problem.goal  # goals
+        prev_state = self.s_levels  # previous state level
         # TODO implement
         # for each goal in the problem, determine the level cost, then add them together
+        for goal in goals:  # iterates through each goal in the known goals
+            goal_node = PgNode_s(goal, is_pos=True)  # each goal is instantiated as a state literal
+            i = 0
+            while i < len(prev_state):  # iterate over the length of the states - no. of states
+                if goal_node in prev_state[i]:  # if the given goal node is in the given previous state
+                    level_sum += i  # add i to level-sum if goal appears
+                    goal_found = True
+                    if goal_found:  # if a goal has been found in the state level exit loop
+                        break
+                i += 1  # if not found increment counter
         return level_sum
